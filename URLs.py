@@ -16,17 +16,9 @@ sub_urls = {
     'Shares Outstanding': 'shares-outstanding',
     # PRICE
     'Price': 'stock-price-history',
-    'Market Cap': 'market-cap'
+    'Market Cap': 'market-cap',
     # BALANCE
-
+    'Total Liabilities': 'total-liabilities',
+    'Total Assets': 'total-assets'
 
 }
-
-
-
-# BALANCE
-# get total labilities
-url_labilities = 'total-liabilities'
-
-# get total assets
-url_assets = 'total-assets'
