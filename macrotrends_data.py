@@ -38,17 +38,12 @@ def get_combined_quarterly_data(ticker, metrics):
     ticker - a company ticker
     metrics - a list of company metrics
     """
-
-    combined_data = pd.DataFrame()
-    for metric in metrics:
-        metric_data = get_quarterly_data_for_single_metric(ticker, metric)
-        if combined_data.empty:
-            combined_data = metric_data
-        else:
-            combined_data = pd.merge(combined_data, metric_data, on=['date'])
+    metrics_data = [get_quarterly_data_for_single_metric(ticker, metric) for metric in metrics]
+    if metrics_data:
+        return pd.concat(metrics_data, axis=1)
+    else:
+        return pd.DataFrame()
     
-    return combined_data
-
 def get_quarterly_data_for_single_metric(ticker, metric):
     url = base_url.format(ticker=ticker, metric=metric)
     table_list = pd.read_html(url)
