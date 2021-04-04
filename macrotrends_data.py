@@ -32,6 +32,7 @@ metric_descriptions = {
     'total-assets': 'Total Assets'
 }
 
+
 def get_combined_quarterly_data(ticker, metrics):
     """ Produce a combined tabled of company metrics.
 
@@ -43,7 +44,8 @@ def get_combined_quarterly_data(ticker, metrics):
         return pd.concat(metrics_data, axis=1)
     else:
         return pd.DataFrame()
-    
+
+
 def get_quarterly_data_for_single_metric(ticker, metric):
     url = base_url.format(ticker=ticker, metric=metric)
     table_list = pd.read_html(url)
@@ -92,3 +94,15 @@ def get_price(ticker):
     if not price or price == 0:
         print('{} price undefined'.format(ticker))
     return float(price)
+
+
+def get_tickers_list():  # all 5000+ tickers from macrotrends
+    url = 'https://www.macrotrends.net/stocks/stock-screener'
+    soup = bs(requests.get(url).content, 'html.parser')
+    scripts = soup.find_all('script')
+    for s in scripts:
+        if 'var originalData =' in str(s):
+            data = s
+            tickers = re.findall('"ticker":"([A-Z]+)"', str(data))
+            return tickers
+    print('tickers not found')
