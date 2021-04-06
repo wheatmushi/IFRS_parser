@@ -12,9 +12,13 @@ class DB:
         if type(tickers) is str:
             tickers = (tickers,)
         for ticker in tickers:
+            print('updating {} data...'.format(ticker))
             table = macrotrends_data.get_combined_quarterly_data(ticker, metrics)
             table.to_sql(ticker, con=self.connection, if_exists='replace', index=True)
         print('DB updated')
 
     def read(self, ticker, metric='*'):
-        return pd.read_sql("SELECT {} FROM {}".format(metric, ticker), self.connection)
+        return pd.read_sql("SELECT {} FROM {}".format(metric, ticker), self.connection, index_col='date')
+
+    def execute(self, request):
+        return self.cursor.execute(request)
