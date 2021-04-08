@@ -78,7 +78,7 @@ def get_quarterly_data_for_single_metric(ticker, metric):
 def get_market_cap(ticker):
     url = base_url.format(ticker=ticker, metric='market-cap')
     soup = bs(requests.get(url).content, 'html.parser')
-    match = re.search('[0-9a-zA-Z ]+ market cap as of [0-9a-zA-Z ]+, [0-9]{4} is .(\\d+.\\d+)B.', soup.text)
+    match = re.search('market cap as of [0-9a-zA-Z ]+, [0-9]{4} is .(\\d+.\\d+)B.', soup.text)
     cap = match.group(1)
     if not cap or cap == 0:
         print('{} market cap undefined'.format(ticker))
@@ -88,9 +88,7 @@ def get_market_cap(ticker):
 def get_price(ticker):
     url = base_url.format(ticker=ticker, metric='stock-price-history')
     soup = bs(requests.get(url).content, 'html.parser')
-    match = re.search('The latest closing stock price for [0-9a-zA-Z ]+ as of [0-9a-zA-Z ]+, [0-9]{4} is (\\d+.\\d+).',
-                      soup.text)
-    price = match.group(1)
+    price = soup.find(string=re.compile("The latest closing stock price")).next_sibling.string
     if not price or price == 0:
         print('{} price undefined'.format(ticker))
     return float(price)
