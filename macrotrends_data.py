@@ -63,13 +63,14 @@ def get_quarterly_data_for_single_metric(ticker, metric):
         print('no data found for {} {}'.format(ticker, metric))
         return
 
-    n = 10**6 if '(Millions of US $)' in ''.join(table.columns.values) else 10**0
+    n = 10**6 if 'Millions' in ''.join(table.columns.values) else 10**0
     table.columns = ('date', metric)
     table['date'] = table['date'].astype('datetime64')
     table = table.set_index(table.columns.values[0])
-    table[metric] = table[metric].str.replace(',', '', regex=False)
-    table[metric] = table[metric].str.replace('$', '', regex=False)
-    table[metric] = table[metric].astype('float')
+    if metric != 'shares-outstanding':
+        table[metric] = table[metric].str.replace(',', '', regex=False)
+        table[metric] = table[metric].str.replace('$', '', regex=False)
+        table[metric] = table[metric].astype('float')
     table[metric] = table[metric] * n
     table = table.iloc[::-1]
     return table
@@ -80,18 +81,18 @@ def get_market_cap(ticker):
     soup = bs(requests.get(url).content, 'html.parser')
     match = re.search('market cap as of [0-9a-zA-Z ]+, [0-9]{4} is .(\\d+.\\d+)B.', soup.text)
     cap = match.group(1)
-    if not cap or cap == 0:
-        print('{} market cap undefined'.format(ticker))
-    return float(cap) * 10**9
+    if cap and cap != 0:
+        return float(cap) * 10 ** 9
+    print('{} market cap undefined'.format(ticker))
 
 
 def get_price(ticker):
     url = base_url.format(ticker=ticker, metric='stock-price-history')
     soup = bs(requests.get(url).content, 'html.parser')
     price = soup.find(string=re.compile("The latest closing stock price")).next_sibling.string
-    if not price or price == 0:
-        print('{} price undefined'.format(ticker))
-    return float(price)
+    if price and price != 0:
+        return float(price)
+    print('{} price undefined'.format(ticker))
 
 
 def get_tickers_list():  # all 5000+ tickers from macrotrends
