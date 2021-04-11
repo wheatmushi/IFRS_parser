@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
 import re
-import numpy as np
+
 
 # Base Macrotrends URL with ticker and metric parameters
 base_url = 'https://www.macrotrends.net/stocks/charts/{ticker}/xxx/{metric}'
@@ -24,9 +24,6 @@ metric_descriptions = {
     'net-income': 'Net Income',
     'eps-earnings-per-share-diluted': 'EPS',
     'shares-outstanding': 'Shares Outstanding',
-    # PRICE
-    'stock-price-history': 'Price',
-    'market-cap': 'Market Cap',
     # BALANCE
     'total-liabilities': 'Total Liabilities',
     'total-assets': 'Total Assets'
@@ -61,12 +58,14 @@ def get_quarterly_data_for_single_metric(ticker, metric):
 
     if table.empty:
         print('no data found for {} {}'.format(ticker, metric))
-        return
+        return table
 
     n = 10**6 if 'Millions' in ''.join(table.columns.values) else 10**0
     table.columns = ('date', metric)
     table['date'] = table['date'].astype('datetime64')
     table = table.set_index(table.columns.values[0])
+    if table.nunique()[0] == 0:
+        return table.fillna(0).iloc[::-1]
     if metric != 'shares-outstanding':
         table[metric] = table[metric].str.replace(',', '', regex=False)
         table[metric] = table[metric].str.replace('$', '', regex=False)
