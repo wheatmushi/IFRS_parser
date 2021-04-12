@@ -19,13 +19,14 @@ class DB:
             metrics = t.columns.values
         for ticker in tickers:
             print('updating {} data...'.format(ticker.upper()))
+            ticker = ticker.lower()
             table = macrotrends_data.get_combined_quarterly_data(ticker, metrics)
             table.to_sql(ticker, con=self.connection, if_exists='replace', index=True)
             time.sleep(5)
         print('DB updated')
 
     def read(self, ticker, metric='*'):
-        return pd.read_sql("SELECT {} FROM {}".format(metric, ticker), self.connection, index_col='date')
+        return pd.read_sql("SELECT {} FROM {}".format(metric, ticker.lower()), self.connection, index_col='date')
 
     def get_list_of_tables(self):
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
